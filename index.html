@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Optimization: Title & Description -->
+    <title>免费在线图片压缩工具 - 批量压缩 PNG/JPG/WebP 不失真 | 极速压缩助手</title>
+    <meta name="description" content="专业免费的在线图片压缩工具，支持 PNG, JPG, JPEG, WebP, AVIF 格式。浏览器本地压缩，无需上传服务器，保护隐私。采用智能压缩算法，体积减少高达 80% 且画质清晰，支持批量处理与打包下载。">
+    <meta name="keywords" content="图片压缩, 在线压缩图片, 压缩PNG, 压缩JPG, 减小图片体积, 无损压缩, 批量图片压缩, 图片压缩工具, WebP转换, TinyPNG替代品">
+    <meta name="author" content="极速压缩助手">
+    <!-- <link rel="canonical" href="https://your-domain.com/" /> -->
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="免费在线图片压缩工具 - 极速、安全、批量">
+    <meta property="og:description" content="无需上传服务器，本地极速压缩。支持 PNG/JPG/WebP，智能算法媲美 TinyPNG，一键批量处理。">
+    <!-- <meta property="og:image" content="https://your-domain.com/share-image.jpg"> -->
+    <!-- <meta property="og:url" content="https://your-domain.com/"> -->
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="极速图片压缩助手">
+    <meta name="twitter:description" content="浏览器本地运行的图片压缩神器，安全高效。">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- JSZip for batch download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- UPNG.js & Pako for Advanced PNG Compression (TinyPNG style) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/upng-js/2.1.0/UPNG.min.js"></script>
+
+    <!-- Structured Data (JSON-LD) for SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "极速图片压缩助手",
+      "url": "https://your-domain.com",
+      "description": "基于浏览器的免费图片压缩工具，支持PNG、JPG、WebP等格式批量压缩。",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY"
+      },
+      "featureList": "本地压缩, 批量处理, 支持WebP/AVIF, 智能PNG量化",
+      "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge."
+    }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a', // Slate 900
+                        secondary: '#334155', // Slate 700
+                        accent: '#0ea5e9', // Sky 500
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .drop-active {
+            border-color: #0ea5e9 !important;
+            background-color: #f0f9ff !important;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .file-card {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        /* Landing Page Styles */
+        .feature-icon {
+            @apply w-12 h-12 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-2xl mb-4;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans selection:bg-sky-200 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm/50 backdrop-blur-md bg-white/90">
+        <div class="max-w-6xl mx-auto px-4 py-4 relative">
+            <!-- Centered Title Group -->
+            <div class="flex flex-col items-center justify-center text-center">
+                <div class="flex items-center gap-3 mb-1">
+                    <div class="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center shadow-md">
+                        <i class="ph ph-file-image text-2xl"></i>
+                    </div>
+                    <h1 class="font-bold text-2xl text-slate-900 leading-tight tracking-tight">极速图片压缩助手</h1>
+                </div>
+                <p class="text-xs text-slate-500 font-medium">安全、免费、支持 TinyPNG 级智能压缩</p>
+            </div>
+
+            <!-- Right Actions (Absolute Position) -->
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                <a href="https://buymeacoffee.com/lizhaoshui" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" class="group flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-slate-900 px-3 py-2 rounded-lg text-sm font-bold transition-all shadow-sm hover:shadow-md">
+                    <i class="ph ph-coffee text-xl"></i>
+                    <span class="hidden sm:inline">支持开发者</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Tool Section -->
+    <main class="flex-grow">
+        <div class="max-w-6xl mx-auto px-4 py-8 lg:py-12">
+            
+            <!-- Tool Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+                
+                <!-- Settings Panel -->
+                <div class="lg:col-span-1 space-y-4">
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm sticky top-24">
+                        <h2 class="font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                            <i class="ph ph-sliders text-lg"></i> 压缩设置
+                        </h2>
+                        
+                        <!-- Quality Slider -->
+                        <div class="mb-5">
+                            <div class="flex justify-between mb-2">
+                                <label for="quality" class="text-sm font-medium text-slate-600">压缩强度/画质</label>
+                                <span id="quality-value" class="text-sm font-bold text-accent">80%</span>
+                            </div>
+                            <input type="range" id="quality" min="10" max="100" value="80" 
+                                class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-500"
+                                aria-label="调整压缩质量">
+                            <p class="text-xs text-slate-400 mt-1">控制 JPG 画质或 PNG 的色彩数量。</p>
+                        </div>
+
+                        <!-- Output Format -->
+                        <div class="mb-5">
+                            <label for="output-format" class="block text-sm font-medium text-slate-600 mb-2">输出格式</label>
+                            <select id="output-format" class="w-full bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 outline-none">
+                                <option value="original" selected>保持原图格式 (默认)</option>
+                                <option value="image/jpeg">JPG (推荐, 兼容性好)</option>
+                                <option value="image/webp">WebP (体积最小)</option>
+                                <option value="image/avif">AVIF (最新格式, 高压缩)</option>
+                                <option value="image/png">PNG (类似 TinyPNG)</option>
+                            </select>
+                        </div>
+
+                        <!-- Max Width (Optional) -->
+                        <div>
+                            <label for="max-width" class="block text-sm font-medium text-slate-600 mb-2">最大宽度 (像素)</label>
+                            <select id="max-width" class="w-full bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 outline-none">
+                                <option value="0">保持原图尺寸</option>
+                                <option value="1920">1920px (1080p)</option>
+                                <option value="1280">1280px (720p)</option>
+                                <option value="800">800px (网页通用)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div id="stats-panel" class="hidden bg-slate-800 text-white p-5 rounded-xl shadow-lg sticky top-[420px]">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-slate-400 text-xs uppercase font-bold tracking-wider">总节省空间</p>
+                                <p id="total-saved" class="text-2xl font-bold mt-1">0 MB</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-slate-400 text-xs">已处理</p>
+                                <p id="progress-count" class="text-lg font-bold">0 / 0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Zone -->
+                <div class="lg:col-span-2 flex flex-col h-full">
+                    <div id="drop-zone" class="flex-1 border-2 border-dashed border-slate-300 rounded-xl bg-white p-8 flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer hover:bg-slate-50 hover:border-sky-400 group min-h-[260px] shadow-sm">
+                        
+                        <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200 shadow-sm">
+                            <i class="ph ph-cloud-arrow-up text-4xl"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-700 mb-2">点击或拖拽图片到这里</h2>
+                        <p class="text-sm text-slate-500 mb-6 max-w-xs mx-auto leading-relaxed">支持 JPG, PNG, WebP, AVIF, BMP 等格式<br>(单次最多 20 张)</p>
+                        <button type="button" id="select-btn" class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 focus:ring-4 focus:ring-slate-300">
+                            选择图片
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File List -->
+            <div id="file-list-container" class="hidden mb-16">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="ph ph-list-dashes"></i> 压缩列表
+                    </h3>
+                    
+                    <div class="flex gap-3">
+                        <button id="reset-btn" class="hidden text-slate-500 hover:text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                            <i class="ph ph-trash"></i> 重置
+                        </button>
+                        <button id="download-all-btn" class="hidden bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="ph ph-package"></i> 打包下载全部
+                        </button>
+                    </div>
+                </div>
+
+                <div id="file-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- File cards will be injected here -->
+                </div>
+            </div>
+
+            <!-- SEO Content Section: Features -->
+            <section id="features" class="py-12 border-t border-slate-200">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">为什么选择我们的图片压缩工具？</h2>
+                    <p class="text-slate-500 max-w-2xl mx-auto">即使是免费工具，我们也不在功能和体验上妥协。为您提供最专业、最安全的在线图片处理服务。</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <article class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="feature-icon"><i class="ph ph-shield-check"></i></div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">100% 本地安全隐私</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">您的图片<span class="font-bold text-slate-700">永远不会上传</span>到服务器。所有压缩过程都在您的浏览器中离线完成，确保您的照片、证件或设计稿绝对安全，无隐私泄露风险。</p>
+                    </article>
+
+                    <article class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="feature-icon"><i class="ph ph-lightning"></i></div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">智能极速压缩算法</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">集成先进的压缩引擎，支持 <span class="font-bold text-slate-700">TinyPNG 级</span>的 PNG 智能量化压缩。在保持视觉质量几乎不变的情况下，可将图片体积减少高达 80%。</p>
+                    </article>
+
+                    <article class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="feature-icon"><i class="ph ph-files"></i></div>
+                        <h3 class="text-xl font-bold text-slate-800 mb-2">全格式批量支持</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">不仅仅是 JPG 和 PNG。我们支持 <span class="font-bold text-slate-700">WebP, AVIF, BMP</span> 等下一代图片格式。支持一次性拖拽 20 张图片批量处理，并提供一键打包下载功能。</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- SEO Content Section: How to -->
+            <section id="how-to" class="py-12 border-t border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-900 mb-6">如何在线压缩图片？</h2>
+                        <ol class="space-y-6">
+                            <li class="flex gap-4">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold">1</span>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-lg">选择或拖拽图片</h3>
+                                    <p class="text-slate-500 text-sm mt-1">点击上传区域，或直接将您的 PNG/JPG 图片拖入框内。支持批量选择。</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold">2</span>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-lg">自定义压缩设置</h3>
+                                    <p class="text-slate-500 text-sm mt-1">您可以调整压缩强度，或者选择输出为 WebP 等更高效的格式。如果不确定，默认设置即可获得最佳效果。</p>
+                                </div>
+                            </li>
+                            <li class="flex gap-4">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold">3</span>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-lg">下载压缩后的文件</h3>
+                                    <p class="text-slate-500 text-sm mt-1">处理完成后，预览压缩效果。点击单独下载，或点击右上角的“打包下载”保存所有文件。</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                    <div class="bg-slate-100 rounded-2xl p-8 flex items-center justify-center border border-slate-200">
+                        <!-- Decorative Illustration placeholder -->
+                        <div class="text-center">
+                            <i class="ph ph-magic-wand text-6xl text-slate-300 mb-4"></i>
+                            <p class="text-slate-400 font-medium">即刻开始，优化您的网站加载速度</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEO Content Section: FAQ -->
+            <section id="faq" class="py-12 border-t border-slate-200">
+                <h2 class="text-3xl font-bold text-slate-900 mb-10 text-center">常见问题解答 (FAQ)</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                    
+                    <div class="bg-white p-6 rounded-xl border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-2">我的图片会被上传吗？</h3>
+                        <p class="text-slate-500 text-sm">绝对不会。本工具使用 HTML5 Canvas 和 WebAssembly 技术，所有的压缩过程都在您的浏览器本地完成。您的图片从未离开过您的设备。</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-2">支持哪些图片格式？</h3>
+                        <p class="text-slate-500 text-sm">我们支持几乎所有现代浏览器支持的格式，包括 PNG, JPG (JPEG), BMP, WebP 以及最新的 AVIF 格式。同时也支持 iPhone 拍摄的 HEIC 格式（需浏览器支持）。</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-2">使用此工具有任何限制吗？</h3>
+                        <p class="text-slate-500 text-sm">本工具完全免费。为了保证浏览器性能不崩溃，目前限制单次批量处理最多 20 张图片，且建议单张图片不超过 50MB。</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-100">
+                        <h3 class="font-bold text-slate-800 mb-2">PNG 图片的压缩效果如何？</h3>
+                        <p class="text-slate-500 text-sm">我们集成了先进的智能色彩量化技术（类似 TinyPNG 原理）。通过减少图片中肉眼难以察觉的冗余色彩数据，通常可以将 PNG 体积减少 50% 至 80%，同时保持极佳的视觉清晰度。</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-8 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-sm text-slate-500 flex items-center justify-center">Made with <i class="ph-fill ph-heart text-red-500 mx-1"></i> for the web.</p>
+        </div>
+    </footer>
+    
+    <!-- Hidden Input (Moved outside) -->
+    <input type="file" id="file-input" multiple accept="image/png, image/jpeg, image/jpg, image/bmp, image/webp, image/avif, image/heic" class="hidden">
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3">
+        <i id="toast-icon" class="ph ph-info text-xl"></i>
+        <span id="toast-message" class="text-sm font-medium">Notification</span>
+    </div>
+
+    <script>
+        // --- Configuration & State ---
+        const MAX_FILES = 20;
+        let filesQueue = [];
+        let isProcessing = false;
+        
+        // --- DOM Elements ---
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const selectBtn = document.getElementById('select-btn'); // New separate button ref
+        const fileListContainer = document.getElementById('file-list-container');
+        const fileList = document.getElementById('file-list');
+        const qualityInput = document.getElementById('quality');
+        const qualityValue = document.getElementById('quality-value');
+        const formatSelect = document.getElementById('output-format');
+        const maxWidthSelect = document.getElementById('max-width');
+        const downloadAllBtn = document.getElementById('download-all-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const statsPanel = document.getElementById('stats-panel');
+        const totalSavedEl = document.getElementById('total-saved');
+        const progressCountEl = document.getElementById('progress-count');
+
+        // --- Event Listeners ---
+        
+        // Quality Slider
+        qualityInput.addEventListener('input', (e) => {
+            qualityValue.textContent = `${e.target.value}%`;
+        });
+
+        // Image Selection Logic
+        function triggerFileSelect(e) {
+            e.stopPropagation(); 
+            fileInput.click();
+        }
+
+        dropZone.addEventListener('click', triggerFileSelect);
+        selectBtn.addEventListener('click', triggerFileSelect);
+        fileInput.addEventListener('change', handleFiles);
+
+        // Drag & Drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('drop-active');
+        });
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drop-active');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drop-active');
+            handleFiles(e);
+        });
+
+        downloadAllBtn.addEventListener('click', downloadAllAsZip);
+        resetBtn.addEventListener('click', resetAll);
+
+        // --- Core Functions ---
+
+        function handleFiles(e) {
+            let files = [];
+            if (e.type === 'drop') {
+                files = Array.from(e.dataTransfer.files);
+            } else {
+                files = Array.from(e.target.files);
+            }
+
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            if (imageFiles.length === 0) {
+                if (files.length > 0) showToast('请上传有效的图片文件', 'error');
+                return;
+            }
+
+            if (filesQueue.length + imageFiles.length > MAX_FILES) {
+                showToast(`一次最多只能处理 ${MAX_FILES} 张图片`, 'warning');
+                const remainingSlots = MAX_FILES - filesQueue.length;
+                if (remainingSlots <= 0) return;
+                files = imageFiles.slice(0, remainingSlots);
+            } else {
+                files = imageFiles;
+            }
+
+            fileListContainer.classList.remove('hidden');
+            statsPanel.classList.remove('hidden');
+            resetBtn.classList.remove('hidden');
+
+            files.forEach(file => {
+                const id = Math.random().toString(36).substr(2, 9);
+                const fileObj = {
+                    id: id,
+                    original: file,
+                    compressedBlob: null,
+                    finalMimeType: '', 
+                    status: 'pending', 
+                    originalSize: file.size
+                };
+                filesQueue.push(fileObj);
+                renderFileCard(fileObj);
+                processImage(fileObj);
+            });
+            
+            fileInput.value = '';
+            updateStats();
+        }
+
+        function resetAll() {
+            filesQueue = [];
+            fileList.innerHTML = '';
+            fileListContainer.classList.add('hidden');
+            statsPanel.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+            downloadAllBtn.classList.add('hidden');
+            totalSavedEl.textContent = '0 MB';
+            progressCountEl.textContent = '0 / 0';
+            fileInput.value = '';
+            showToast('已重置所有内容', 'success');
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function getExtensionFromMime(mimeType) {
+            switch(mimeType) {
+                case 'image/jpeg': return 'jpg';
+                case 'image/png': return 'png';
+                case 'image/webp': return 'webp';
+                case 'image/avif': return 'avif';
+                case 'image/bmp': return 'bmp';
+                default: return 'jpg';
+            }
+        }
+
+        function renderFileCard(fileObj) {
+            const card = document.createElement('div');
+            card.id = `card-${fileObj.id}`;
+            card.className = 'file-card bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4 relative overflow-hidden';
+            
+            const url = URL.createObjectURL(fileObj.original);
+            
+            card.innerHTML = `
+                <div class="w-16 h-16 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 border border-slate-200 shadow-inner">
+                    <img src="${url}" class="w-full h-full object-cover" alt="${fileObj.original.name} preview">
+                </div>
+                <div class="flex-1 min-w-0 z-10">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-medium text-slate-800 truncate pr-2" title="${fileObj.original.name}">${fileObj.original.name}</h4>
+                        <button onclick="removeFile('${fileObj.id}')" class="text-slate-400 hover:text-red-500 transition-colors p-1" aria-label="移除文件">
+                            <i class="ph ph-x"></i>
+                        </button>
+                    </div>
+                    <div class="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+                        <span class="bg-slate-100 px-2 py-0.5 rounded text-slate-600 border border-slate-200">${formatSize(fileObj.originalSize)}</span>
+                        <i class="ph ph-arrow-right text-slate-300"></i>
+                        <span id="size-${fileObj.id}" class="font-bold text-slate-800">处理中...</span>
+                        <span id="badge-${fileObj.id}" class="hidden ml-2 px-2 py-0.5 rounded text-[10px] font-bold"></span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+                        <div id="bar-${fileObj.id}" class="bg-sky-500 h-1.5 rounded-full w-0 transition-all duration-500"></div>
+                    </div>
+                </div>
+                <div id="action-${fileObj.id}" class="hidden ml-2 z-10">
+                    <a id="link-${fileObj.id}" href="#" download title="下载此图片" class="w-9 h-9 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-sky-50 hover:text-sky-600 hover:border-sky-200 flex items-center justify-center transition-all">
+                        <i class="ph ph-download-simple text-lg"></i>
+                    </a>
+                </div>
+            `;
+            fileList.appendChild(card);
+        }
+
+        async function processImage(fileObj) {
+            const qualityVal = parseInt(qualityInput.value); // 0-100
+            const quality = qualityVal / 100; // 0.0 - 1.0 (for lossy formats)
+            let outputFormat = formatSelect.value;
+            const maxWidth = parseInt(maxWidthSelect.value);
+
+            if (outputFormat === 'original') {
+                outputFormat = fileObj.original.type;
+                if (!outputFormat) outputFormat = 'image/jpeg';
+            }
+
+            const progressBar = document.getElementById(`bar-${fileObj.id}`);
+            const sizeLabel = document.getElementById(`size-${fileObj.id}`);
+            const badge = document.getElementById(`badge-${fileObj.id}`);
+            const actionDiv = document.getElementById(`action-${fileObj.id}`);
+            const downloadLink = document.getElementById(`link-${fileObj.id}`);
+
+            progressBar.style.width = '30%';
+
+            try {
+                const img = new Image();
+                img.src = URL.createObjectURL(fileObj.original);
+                
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                });
+
+                progressBar.style.width = '60%';
+
+                const originalWidth = img.naturalWidth;
+                const originalHeight = img.naturalHeight;
+                let width = originalWidth;
+                let height = originalHeight;
+
+                let isResized = false;
+                if (maxWidth > 0 && width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                    isResized = true;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                // For JPEG, we need white background.
+                // For PNG, we need transparency.
+                if (outputFormat === 'image/jpeg') {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, width, height);
+                }
+                
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // --- COMPRESSION LOGIC START ---
+
+                const finishProcessing = (blob) => {
+                     // Check if result is larger (Negative compression)
+                    let finalBlob = blob;
+                    let isReverted = false;
+                    const isSameFormat = (fileObj.original.type === blob.type);
+                    
+                    // Logic: If result > original AND same format AND no resize, keep original.
+                    if (blob.size > fileObj.originalSize && isSameFormat && !isResized) {
+                        finalBlob = fileObj.original;
+                        isReverted = true;
+                    }
+
+                    progressBar.style.width = '100%';
+                    progressBar.classList.replace('bg-sky-500', 'bg-emerald-500');
+
+                    fileObj.compressedBlob = finalBlob;
+                    fileObj.finalMimeType = finalBlob.type;
+                    fileObj.status = 'done';
+
+                    const reduction = ((fileObj.originalSize - finalBlob.size) / fileObj.originalSize * 100).toFixed(0);
+                    const isLarger = finalBlob.size > fileObj.originalSize;
+
+                    sizeLabel.innerHTML = formatSize(finalBlob.size);
+                    
+                    if (isReverted) {
+                        badge.textContent = `无法压缩`;
+                        badge.className = 'ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 inline-block border border-slate-200';
+                        badge.title = "原图已经很小，浏览器处理后体积未减小，已保留原图";
+                    } else if (!isLarger) {
+                        badge.textContent = `-${reduction}%`;
+                        badge.className = 'ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200 inline-block';
+                    } else {
+                         badge.textContent = `变大`;
+                         badge.className = 'ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-200 inline-block';
+                    }
+
+                    const ext = getExtensionFromMime(finalBlob.type);
+                    const newName = fileObj.original.name.substring(0, fileObj.original.name.lastIndexOf('.')) + '_min.' + ext;
+                    
+                    downloadLink.href = URL.createObjectURL(finalBlob);
+                    downloadLink.download = newName;
+                    
+                    actionDiv.classList.remove('hidden');
+                    updateStats();
+                };
+
+                // --- 1. Handle PNG with UPNG.js (TinyPNG Style) ---
+                if (outputFormat === 'image/png') {
+                    // Get raw pixel data
+                    const d = ctx.getImageData(0, 0, width, height).data;
+                    
+                    // UPNG.encode expects ArrayBuffer of RGBA
+                    let cnum = Math.floor(qualityVal * 2.56); 
+                    if (cnum < 16) cnum = 16;
+                    if (cnum > 256) cnum = 256;
+
+                    setTimeout(() => {
+                        try {
+                            const pngBuffer = UPNG.encode([d.buffer], width, height, cnum);
+                            const pngBlob = new Blob([pngBuffer], {type: 'image/png'});
+                            finishProcessing(pngBlob);
+                        } catch (e) {
+                            console.error("UPNG Error:", e);
+                            handleError(fileObj.id, "压缩出错");
+                        }
+                    }, 50);
+                } 
+                // --- 2. Handle JPG/WebP/Standard Canvas ---
+                else {
+                    canvas.toBlob((blob) => {
+                        if (!blob) {
+                            handleError(fileObj.id, "Compression Failed");
+                            return;
+                        }
+                        finishProcessing(blob);
+                    }, outputFormat, quality);
+                }
+
+            } catch (err) {
+                console.error(err);
+                handleError(fileObj.id, "格式错误");
+            }
+        }
+
+        function handleError(id, msg) {
+            const progressBar = document.getElementById(`bar-${id}`);
+            const sizeLabel = document.getElementById(`size-${id}`);
+            progressBar.classList.replace('bg-sky-500', 'bg-red-500');
+            progressBar.style.width = '100%';
+            sizeLabel.textContent = msg;
+            sizeLabel.classList.add('text-red-500');
+            const file = filesQueue.find(f => f.id === id);
+            if(file) file.status = 'error';
+            updateStats();
+        }
+
+        function removeFile(id) {
+            const index = filesQueue.findIndex(f => f.id === id);
+            if (index > -1) {
+                filesQueue.splice(index, 1);
+                document.getElementById(`card-${id}`).remove();
+                if (filesQueue.length === 0) {
+                    resetAll();
+                } else {
+                   updateStats();
+                }
+            }
+        }
+
+        function updateStats() {
+            const doneFiles = filesQueue.filter(f => f.status === 'done');
+            if (doneFiles.length > 0) {
+                downloadAllBtn.classList.remove('hidden');
+                downloadAllBtn.disabled = false;
+                resetBtn.classList.remove('hidden');
+            } else if (filesQueue.length > 0) {
+                resetBtn.classList.remove('hidden');
+                downloadAllBtn.classList.add('hidden');
+            } else {
+                downloadAllBtn.classList.add('hidden');
+                resetBtn.classList.add('hidden');
+            }
+
+            let totalOrig = 0;
+            let totalComp = 0;
+            doneFiles.forEach(f => {
+                totalOrig += f.originalSize;
+                totalComp += f.compressedBlob.size;
+            });
+            const saved = Math.max(0, totalOrig - totalComp);
+            totalSavedEl.textContent = formatSize(saved);
+            progressCountEl.textContent = `${doneFiles.length} / ${filesQueue.length}`;
+        }
+
+        async function downloadAllAsZip() {
+            const doneFiles = filesQueue.filter(f => f.status === 'done');
+            if (doneFiles.length === 0) return;
+
+            const btnOriginalText = downloadAllBtn.innerHTML;
+            downloadAllBtn.disabled = true;
+            downloadAllBtn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> 打包中...`;
+
+            try {
+                const zip = new JSZip();
+                const folder = zip.folder("compressed_images");
+                doneFiles.forEach(f => {
+                    const ext = getExtensionFromMime(f.finalMimeType);
+                    let fileName = f.original.name;
+                    fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+                    fileName = `${fileName}_min.${ext}`;
+                    folder.file(fileName, f.compressedBlob);
+                });
+                const content = await zip.generateAsync({type:"blob"});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(content);
+                link.download = "images_compressed.zip";
+                link.click();
+                showToast('打包下载已开始', 'success');
+            } catch (e) {
+                showToast('打包失败', 'error');
+                console.error(e);
+            } finally {
+                downloadAllBtn.disabled = false;
+                downloadAllBtn.innerHTML = btnOriginalText;
+            }
+        }
+
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const message = document.getElementById('toast-message');
+            message.textContent = msg;
+            toast.className = `fixed bottom-5 right-5 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 flex items-center gap-3 text-white`;
+            if (type === 'error') {
+                toast.classList.add('bg-red-600', 'translate-y-0', 'opacity-100');
+                icon.className = 'ph ph-warning-circle text-xl';
+            } else if (type === 'success') {
+                toast.classList.add('bg-emerald-600', 'translate-y-0', 'opacity-100');
+                icon.className = 'ph ph-check-circle text-xl';
+            } else {
+                toast.classList.add('bg-slate-800', 'translate-y-0', 'opacity-100');
+                icon.className = 'ph ph-info text-xl';
+            }
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
